@@ -8,3 +8,5 @@ cryptography
 pydantic[email]
 requests
 streamlit
+python-jose[cryptography]
+passlib[bcrypt]

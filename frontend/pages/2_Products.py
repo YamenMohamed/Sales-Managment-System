@@ -9,6 +9,11 @@ if "user" not in st.session_state or not st.session_state.user:
     st.warning("Please log in first.")
     st.stop()
 
+if "token" not in st.session_state or not st.session_state.token:
+    st.warning("Please log in to access this page.")
+    st.stop()
+
+
 # Initialize cart in session
 if "cart" not in st.session_state:
     st.session_state.cart = []

@@ -7,6 +7,12 @@ if "user" not in st.session_state or not st.session_state.user:
     st.warning("Please log in first.")
     st.stop()
 
+if "token" not in st.session_state or not st.session_state.token:
+    st.warning("Please log in to access this page.")
+    st.stop()
+
+
+
 user = st.session_state.user
 profile = get_user(user["id"])
 

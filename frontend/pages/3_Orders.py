@@ -3,6 +3,10 @@ from backend.utils.api import get_user_orders
 
 st.title("📦 My Orders")
 
+if "token" not in st.session_state or not st.session_state.token:
+    st.warning("Please log in to access this page.")
+    st.stop()
+
 if "user" not in st.session_state or not st.session_state.user:
     st.warning("Please log in first.")
     st.stop()

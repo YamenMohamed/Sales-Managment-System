@@ -24,13 +24,15 @@ else:
         email = st.text_input("Email")
         password = st.text_input("Password", type="password")
         if st.button("Login"):
-            user = login(email, password)
-            if user:
-                st.session_state.user = user
+            result = login(email, password)
+            if result:
+                st.session_state.user = result["user"]
+                st.session_state.token = result["access_token"]
+                st.success(f"Logged in successfully as {result['user']['name']} ({result['user']['role']})!")
                 st.success("Logged in successfully!")
-                st.rerun()
             else:
-                st.error("Invalid email or password")
+                st.error("Invalid credentials.")
+
 
     with tab_signup:
         with st.form("signup_form"):

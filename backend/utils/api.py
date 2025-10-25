@@ -8,7 +8,14 @@ def signup(data):
 
 def login(email, password):
     r = requests.post(f"{BASE_URL}/users/login", json={"email": email, "password": password})
-    return r.json() if r.status_code == 200 else None
+    if r.status_code == 200:
+        data = r.json()
+        # store both user info and token
+        return data
+    else:
+        print("Login failed:", r.status_code, r.text)
+        return None
+
 
 def get_user(user_id):
     r = requests.get(f"{BASE_URL}/users/{user_id}")

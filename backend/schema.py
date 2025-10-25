@@ -140,3 +140,20 @@ class OrderOut(OrderBase):
     items: List[OrderItemOut]
     class Config:
         from_attributes = True
+
+# ------------------ Auth ------------------
+class UserBasePublic(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    role: str
+
+    class Config:
+        from_attributes = True
+
+
+class TokenResponse(BaseModel):
+    user: UserBasePublic
+    access_token: str
