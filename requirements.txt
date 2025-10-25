@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+python-multipart
+bcrypt
+cryptography
+pydantic[email]
+requests
+streamlit

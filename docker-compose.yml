@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: yamenmsaad462001
+      MYSQL_DATABASE: sales_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  web:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:yamenmsaad462001@db:3306/sales_db
+    volumes:
+      - .:/app
+    command: sh -c "sleep 12 && uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload"
+
+
+volumes:
+  mysql_data:
