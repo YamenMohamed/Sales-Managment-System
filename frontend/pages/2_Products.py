@@ -1,6 +1,7 @@
 import streamlit as st
 import datetime
 from backend.utils.api import get_products, create_order
+from frontend.utils.auth import logout
 
 st.title("🛍️ Products")
 
@@ -13,6 +14,9 @@ if "token" not in st.session_state or not st.session_state.token:
     st.warning("Please log in to access this page.")
     st.stop()
 
+
+if st.sidebar.button("Logout"):
+    logout()
 
 # Initialize cart in session
 if "cart" not in st.session_state:

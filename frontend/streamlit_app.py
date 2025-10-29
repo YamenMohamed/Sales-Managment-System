@@ -2,24 +2,30 @@ import streamlit as st
 import sys
 import os
 
-# Add the parent directory to the Python path
+# Add backend to path (important for Docker & imports)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from backend.utils.api import signup, login
+from frontend.utils.auth import is_admin, logout
+# from frontend.utils.admin_api import get_users, delete_user, get_products, delete_product, get_orders
 
+# ------------------- PAGE SETUP -------------------
 st.set_page_config(page_title="Store System", page_icon="🛍️")
 
+# Initialize session state
 if "user" not in st.session_state:
     st.session_state.user = None
+if "token" not in st.session_state:
+    st.session_state.token = None
 
-st.title("🛒 Welcome to Store Management System")
+st.title("🛒 Store Management System")
 
-if st.session_state.user:
-    st.success(f"Welcome back, {st.session_state.user['name']}!")
-    st.page_link("pages/1_Profile.py", label="Go to Profile →")
-else:
+
+# --- IF LOGGED OUT ---
+if not st.session_state.user:
     tab_login, tab_signup = st.tabs(["🔑 Login", "📝 Signup"])
 
+    # LOGIN TAB
     with tab_login:
         email = st.text_input("Email")
         password = st.text_input("Password", type="password")
@@ -28,12 +34,12 @@ else:
             if result:
                 st.session_state.user = result["user"]
                 st.session_state.token = result["access_token"]
-                st.success(f"Logged in successfully as {result['user']['name']} ({result['user']['role']})!")
-                st.success("Logged in successfully!")
+                st.success("✅ Logged in successfully!")
+                st.switch_page("pages/1_Profile.py")
             else:
-                st.error("Invalid credentials.")
+                st.error("❌ Invalid credentials.")
 
-
+    # SIGNUP TAB
     with tab_signup:
         with st.form("signup_form"):
             name = st.text_input("Full Name")
@@ -51,8 +57,10 @@ else:
                     "password": password,
                     "role": "user"
                 }
-                res = signup(user_data)
-                if res:
-                    st.success("Account created! Please login.")
+                
+                if signup(user_data):
+                    st.success("🎉 Account created! Please login.")
                 else:
-                    st.error("Signup failed.")
+                    st.error("Signup failed. Try again.")
+else:
+    st.switch_page("pages/1_Profile.py")

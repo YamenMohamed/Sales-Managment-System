@@ -23,8 +23,9 @@ def login_user(user: schema.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     access_token = create_access_token(
-        data={"sub": db_user["email"], "role": db_user["role"]}
+        data={"sub": str(db_user["id"]), "role": db_user["role"]}
     )
+    
     return {"user": db_user, "access_token": access_token}
 
 
@@ -36,4 +37,6 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 @router.put("/{user_id}", response_model=schema.UserOut)
 def update_user(user_id: int, user: schema.UserUpdate, db: Session = Depends(get_db)):
     return user_crud.update_user(db, user_id, user)
+
+
 

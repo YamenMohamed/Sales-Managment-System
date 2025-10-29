@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from backend.database import init_db
-from backend.routes import user_routes, product_routes, order_routes
+from backend.routes import user_routes, product_routes, order_routes, admin_routes
 
 app = FastAPI(
     title="Store Management API",
@@ -15,6 +15,8 @@ init_db()
 app.include_router(user_routes.router)
 app.include_router(product_routes.router)
 app.include_router(order_routes.router)
+app.include_router(admin_routes.router)
+
 
 @app.get("/")
 def root():

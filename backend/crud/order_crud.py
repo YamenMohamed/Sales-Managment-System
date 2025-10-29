@@ -1,12 +1,31 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session , joinedload
 from backend import models, schema
 from .orderItem_crud import *
 # ------------------ Order CRUD ------------------
 
 # all orders made 
-def get_orders(db:Session):  
-    return db.query(models.Order).all()
+def get_orders(db: Session):
+    orders = db.query(models.Order).options(
+        joinedload(models.Order.items).joinedload(models.OrderItem.product)
+    ).all()
 
+    result = []
+    for order in orders:
+        result.append({
+            "id": order.id,
+            "user_id": order.user_id,
+            "order_date": str(order.order_date),
+            "total_price": order.total_price,
+            "items": [
+                {
+                    "product_name": item.product.name if item.product else "Unknown Product",
+                    "quantity": item.quantity,
+                    "item_price": item.price
+                }
+                for item in order.items
+            ]
+        })
+    return result
 
 # a specific Order
 def get_order(db:Session,order_id:int):
@@ -94,17 +113,14 @@ def create_order(db: Session, order: schema.OrderCreate):
     }
 
 
-
-
-
-def delete_order(db:Session,order_id:int):
-    order = get_order(db,order_id)
+def delete_order(db: Session, order_id: int):
+    order = get_order(db, order_id)
 
     if order:
-        # return order so every product is added back to the stock
-        orderItems = get_orderItem(db,order.id)
+        # Return each product's stock before deleting the order
+        orderItems = get_orderItems(db, order.id)
         for orderItem in orderItems:
-            delete_orderItem(db,orderItem.id)
+            delete_orderItem(db, orderItem.id)
 
         db.delete(order)
         db.commit()

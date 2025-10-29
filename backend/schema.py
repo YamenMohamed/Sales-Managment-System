@@ -78,14 +78,20 @@ class ProductBase(BaseModel):
     class Config:
         from_attributes = True
     
-class ProductCreate(ProductBase):
-    pass
+class ProductCreate(BaseModel):
+    name: str
+    price: float = Field(..., gt=0)
+    stock_quantity: int = Field(..., ge=0)
+    category_id: Optional[int] = None
+ 
+
 
 class ProductUpdate(BaseModel):
     name: Optional[str]
     price: Optional[float] = Field(None, gt=0)
-    category_id: Optional[int]
     stock_quantity: Optional[int] = Field(None, ge=0)
+    category_name: Optional[str] = None  
+
 
 class ProductOut(ProductBase):
     id: int

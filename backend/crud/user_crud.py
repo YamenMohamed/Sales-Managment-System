@@ -134,19 +134,20 @@ def create_user(db: Session, user_data: schema.UserCreate):
     }
 
 
-
-
 def update_user(db: Session, user_id: int, user_update: schema.UserUpdate):
-    user = get_user(db, user_id)
+    # ✅ Get the actual SQLAlchemy User model, not the dict
+    user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # ✅ Update only provided fields
     for field, value in user_update.dict(exclude_unset=True).items():
         setattr(user, field, value)
 
-
     db.commit()
     db.refresh(user)
+
+
     return {
         "id": user.id,
         "name": user.name,
@@ -157,10 +158,19 @@ def update_user(db: Session, user_id: int, user_update: schema.UserUpdate):
     }
 
 
+
 def delete_user(db: Session, user_id: int):
-    user = get_user(db, user_id)
-    if user:
-        db.delete(user)
-        db.commit()
-        return True
-    return False
+    # Fetch the actual SQLAlchemy model 
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        return False
+
+    # delete the linked UserCredential if exists
+    cred = db.query(models.UserCredential).filter(models.UserCredential.user_id == user_id).first()
+    if cred:
+        db.delete(cred)
+
+    db.delete(user)
+    db.commit()
+    return True

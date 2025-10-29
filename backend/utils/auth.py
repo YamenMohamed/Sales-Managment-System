@@ -15,17 +15,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60   # 1 hour
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 
-# Create a JWT token
+# Create a JWT token (now includes role)
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
+
+    # Add expiration time
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
+
+    # Encode the JWT
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-
-# Decode and verify the token, get the user
+# Decode and verify the token, get the current user from DB if needed
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -36,16 +39,24 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("sub")
+        role: str = payload.get("role")
+
         if user_id is None:
             raise credentials_exception
+
     except JWTError:
         raise credentials_exception
 
+    # You could skip this DB lookup if you trust JWTs completely,
+    # but it's safer to re-fetch the user to ensure they still exist.
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user is None:
         raise credentials_exception
 
+    # Attach role from JWT (helps if DB query didn’t load it)
+    user.role = role or user.role
     return user
+
 
 # Admin-only dependency
 def require_admin(current_user: models.User = Depends(get_current_user)):

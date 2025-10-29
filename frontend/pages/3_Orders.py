@@ -1,5 +1,6 @@
 import streamlit as st
 from backend.utils.api import get_user_orders
+from frontend.utils.auth import logout
 
 st.title("📦 My Orders")
 
@@ -10,6 +11,10 @@ if "token" not in st.session_state or not st.session_state.token:
 if "user" not in st.session_state or not st.session_state.user:
     st.warning("Please log in first.")
     st.stop()
+
+
+if st.sidebar.button("Logout"):
+    logout()
 
 orders = get_user_orders(st.session_state.user["id"])
 

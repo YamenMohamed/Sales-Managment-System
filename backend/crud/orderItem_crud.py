@@ -5,17 +5,18 @@ from backend import models, schema
 
 # ------------------ OrderItems CRUD ------------------
 
-# get all ordered Items
-def get_orderItems(db:Session):
+# Get all ordered items (across all orders)
+def get_all_orderItems(db: Session):
     return db.query(models.OrderItem).all()
 
-# get all the products in a specific Order
-def get_orderItems(db:Session,order_id:int):
+# Get all items for a specific order
+def get_orderItems(db: Session, order_id: int):
     return db.query(models.OrderItem).filter(models.OrderItem.order_id == order_id).all()
 
-# get a specific Order Item
-def get_orderItem(db:Session,orderItem_id:int):
+# Get a specific order item by ID
+def get_orderItem(db: Session, orderItem_id: int):
     return db.query(models.OrderItem).filter(models.OrderItem.id == orderItem_id).first()
+
 
 # create a new order Item
 def create_orderItem(db:Session,orderItem :schema.OrderItemCreate):
@@ -52,9 +53,10 @@ def create_orderItem(db:Session,orderItem :schema.OrderItemCreate):
 
 
 
-def delete_orderItem(db:Session,orderItem_id):
+def delete_orderItem(db: Session, orderItem_id: int):
     from backend.crud.product_crud import get_product
-    orderItem = get_orderItem(db,orderItem)
+    orderItem = get_orderItem(db, orderItem_id)
+
 
     if orderItem:
         product = get_product(db,orderItem.product_id)
